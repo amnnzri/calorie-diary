@@ -1,0 +1,7 @@
+{
+  "name": "AuthStarterAngularFire",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular"
+}

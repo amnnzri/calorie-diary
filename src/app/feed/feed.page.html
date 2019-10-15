@@ -1,0 +1,87 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Your Information
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/profile">
+        <ion-icon slot="icon-only" name="person"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+
+
+<ion-content padding>
+
+<ion-item>
+  <ion-label floating> Enter your height (cm) </ion-label>
+  <ion-input [(ngModel)]="height" type="number"></ion-input>
+</ion-item>
+
+<ion-item>
+  <ion-label floating> Enter your weight (kg) </ion-label>
+  <ion-input [(ngModel)]="weight" type="number"></ion-input>
+</ion-item>
+
+<ion-item>
+  <ion-label floating> Enter your age </ion-label>
+  <ion-input [(ngModel)]="age" type="number"></ion-input>
+</ion-item>
+
+<ion-item>
+    <ion-label>Gender</ion-label>
+    <ion-select placeholder="genderofsex">
+      <ion-select-option value="f">Female</ion-select-option>
+      <ion-select-option value="m">Male</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <ion-item>
+      <ion-label>Activity level</ion-label>
+      <ion-select placeholder="activitylevelofperson">
+        <ion-select-option value="s">Sedentary (Little or No Exercise)</ion-select-option>
+        <ion-select-option value="la">Lightly Active (Light Exercise/Sports 1-3 Days Per Week)</ion-select-option>
+        <ion-select-option value="ma">Moderateley Active (Moderate Exercise/Sports 3-5 Days Per Week)</ion-select-option>
+        <ion-select-option value="va">Very Active (Hard Exercise/Sports 6-7 days Per Week)</ion-select-option>
+        <ion-select-option value="ea">Extra Active (Very Intense Exercise/Sports and Physical Job Daily)</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+
+    <div padding>
+        <button block ion-button (click)="calculateBMI()">Calculate</button>
+      </div>
+
+      <ion-card *ngIf="bmiValue">
+          <ion-card-header>
+            BMI Calculation
+          </ion-card-header>
+          <ion-card-content>
+            <p>Person: Weight {{this.weight}} kg, Height {{this.height}} cm</p>
+            <p>BMI: {{bmiValue}}</p>
+            <p><strong>You are {{bmiMessage}}</strong></p>
+          </ion-card-content>
+        </ion-card>
+
+
+        <div padding>
+            <button block ion-button (click)="getBMR()">Calculate</button>
+          </div>
+    
+          <ion-card *ngIf="BMR">
+              <ion-card-header>
+                BMR Calculation
+              </ion-card-header>
+              <ion-card-content>
+                <p>Person: Weight {{this.weight}} kg, Height {{this.height}} cm</p>
+                <p>BMR: {{BMR}}</p>
+                <p><strong>You need more than {{BMR}} if want to gain weight</strong></p>
+                <p><strong>You need consistent value {{BMR}} if want to maintain weight</strong></p>
+                <p><strong>You need less than {{BMR}} if want to lose weight</strong></p>
+              </ion-card-content>
+            </ion-card>
+
+
+</ion-content>
