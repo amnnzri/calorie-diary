@@ -1,8 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { UserCredential } from 'src/app/models/user';
 import { AuthService } from 'src/app/services/auth.service';
+import { CommonService } from 'src/app/services/common.service';
 import { AuthFormComponent } from 'src/app/components/auth-form/auth-form.component';
-import { Router } from '@angular/router';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-signup',
@@ -10,24 +11,27 @@ import { Router } from '@angular/router';
   styleUrls: ['./signup.page.scss']
 })
 export class SignupPage implements OnInit {
-  @ViewChild(AuthFormComponent, { static: false })
-  signupForm: AuthFormComponent;
-  constructor(private authService: AuthService, private router: Router) {}
+  @ViewChild(AuthFormComponent, { static: false }) signupForm: AuthFormComponent;
+
+  constructor(
+    private authService: AuthService,
+    private commonService: CommonService,
+    private navController: NavController
+  ) {}
 
   ngOnInit() {}
 
-  async signupUser(credentials: UserCredential): Promise<void> {
+  async signupUser(credentials: UserCredential) {
     try {
       const userCredential: firebase.auth.UserCredential = await this.authService.signup(
         credentials.email,
         credentials.password
       );
-      this.authService.userId = userCredential.user.uid;
       await this.signupForm.hideLoading();
-      this.router.navigateByUrl('home');
+      this.navController.navigateRoot('/');
     } catch (error) {
       await this.signupForm.hideLoading();
-      this.signupForm.handleError(error);
+      this.commonService.handleError(error);
     }
   }
 }

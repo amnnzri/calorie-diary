@@ -1,13 +1,14 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: 'AIzaSyAHUFPdCIXilBYumB_Cd7XcXx7hLwsKJF8',
-    authDomain: 'test-48a29.firebaseapp.com',
-    databaseURL: 'https://test-48a29.firebaseio.com',
-    projectId: 'test-48a29',
-    storageBucket: '',
-    messagingSenderId: '644807752749',
-    appId: '1:644807752749:web:bd77d0bcdaad0de6d0cca4'
+    apiKey: "AIzaSyC80D0aMjJU64FfsXcg-h0kibDxWfqSehE",
+    authDomain: "calorie-diary-example.firebaseapp.com",
+    databaseURL: "https://calorie-diary-example.firebaseio.com",
+    projectId: "calorie-diary-example",
+    storageBucket: "calorie-diary-example.appspot.com",
+    messagingSenderId: "483992587848",
+    appId: "1:483992587848:web:b40318a4fa2cb2c4a6127d",
+    measurementId: "G-8QME8ZTZ1B"
   }
 };
 

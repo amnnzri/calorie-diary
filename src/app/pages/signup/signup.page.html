@@ -10,7 +10,7 @@
 <ion-content>
   <app-auth-form #signupForm (formSubmitted)=signupUser($event) [actionButtonText]="'Create Account'"></app-auth-form>
 
-  <ion-button expand="block" fill="clear" routerLink="/login">
+  <ion-button expand="block" fill="clear" routerLink="/login" routerDirection="back">
     I already have an account
   </ion-button>
 </ion-content>

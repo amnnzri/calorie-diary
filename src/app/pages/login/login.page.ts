@@ -1,8 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { UserCredential } from 'src/app/models/user';
 import { AuthService } from 'src/app/services/auth.service';
+import { CommonService } from 'src/app/services/common.service';
 import { AuthFormComponent } from 'src/app/components/auth-form/auth-form.component';
-import { Router } from '@angular/router';
+import { NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-login',
@@ -11,22 +12,26 @@ import { Router } from '@angular/router';
 })
 export class LoginPage implements OnInit {
   @ViewChild(AuthFormComponent, { static: false }) loginForm: AuthFormComponent;
-  constructor(private authService: AuthService, private router: Router) {}
+
+  constructor(
+    private authService: AuthService,
+    private commonService: CommonService,
+    private navController: NavController
+  ) {}
 
   ngOnInit() {}
 
-  async loginUser(credentials: UserCredential): Promise<void> {
+  async loginUser(credentials: UserCredential) {
     try {
       const userCredential: firebase.auth.UserCredential = await this.authService.login(
         credentials.email,
         credentials.password
       );
-      this.authService.userId = userCredential.user.uid;
       await this.loginForm.hideLoading();
-      this.router.navigateByUrl('home');
+      this.navController.navigateRoot('/');
     } catch (error) {
       await this.loginForm.hideLoading();
-      this.loginForm.handleError(error);
+      this.commonService.handleError(error);
     }
   }
 }

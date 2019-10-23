@@ -1,33 +1,27 @@
 import { Injectable } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { AngularFirestore } from '@angular/fire/firestore';
-import { first } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  public userId: string;
+
   constructor(
     private afAuth: AngularFireAuth,
     private firestore: AngularFirestore
   ) {}
 
-  getUser(): Promise<firebase.User> {
-    return this.afAuth.authState.pipe(first()).toPromise();
+  getCurrentUser(): Observable<firebase.User> {
+    return this.afAuth.authState;
   }
 
-  login(
-    email: string,
-    password: string
-  ): Promise<firebase.auth.UserCredential> {
+  async login(email: string, password: string): Promise<firebase.auth.UserCredential> {
     return this.afAuth.auth.signInWithEmailAndPassword(email, password);
   }
 
-  async signup(
-    email: string,
-    password: string
-  ): Promise<firebase.auth.UserCredential> {
+  async signup(email: string, password: string): Promise<firebase.auth.UserCredential> {
     const newUserCredential: firebase.auth.UserCredential = await this.afAuth.auth.createUserWithEmailAndPassword(
       email,
       password
@@ -38,11 +32,11 @@ export class AuthService {
     return newUserCredential;
   }
 
-  resetPassword(email: string): Promise<void> {
+  async resetPassword(email: string) {
     return this.afAuth.auth.sendPasswordResetEmail(email);
   }
 
-  logout(): Promise<void> {
+  async logout() {
     return this.afAuth.auth.signOut();
   }
 }

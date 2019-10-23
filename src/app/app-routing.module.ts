@@ -1,37 +1,42 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
-import { redirectUnauthorizedTo, canActivate } from '@angular/fire/auth-guard';
+import { redirectUnauthorizedTo, redirectLoggedInTo, canActivate } from '@angular/fire/auth-guard';
 
-const redirectToLogin = redirectUnauthorizedTo(['login']);
+const redirectUnauthorizedToLogin = redirectUnauthorizedTo(['login']);
+const redirectLoggedInToHome = redirectLoggedInTo([''])
 
 const routes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
   {
-    path: 'home',
+    path: '',
     loadChildren: () =>
       import('./home/home.module').then(m => m.HomePageModule),
-    ...canActivate(redirectToLogin)
+    ...canActivate(redirectUnauthorizedToLogin)
   },
-  { path: 'login', loadChildren: './pages/login/login.module#LoginPageModule' },
+  {
+    path: 'login',
+    loadChildren: () =>
+      import('./pages/login/login.module').then(m => m.LoginPageModule),
+    ...canActivate(redirectLoggedInToHome)
+  },
   {
     path: 'signup',
-    loadChildren: './pages/signup/signup.module#SignupPageModule'
+    loadChildren: () =>
+      import('./pages/signup/signup.module').then(m => m.SignupPageModule),
+    ...canActivate(redirectLoggedInToHome)
   },
   {
     path: 'reset-password',
-    loadChildren:
-    './pages/reset-password/reset-password.module#ResetPasswordPageModule'
+    loadChildren: () =>
+      import('./pages/reset-password/reset-password.module').then(m=> m.ResetPasswordPageModule),
+    ...canActivate(redirectLoggedInToHome)
   },
   {
     path: 'profile',
-    loadChildren: './pages/profile/profile.module#ProfilePageModule',
-    ...canActivate(redirectToLogin)
+    loadChildren: () =>
+      import('./pages/profile/profile.module').then(m => m.ProfilePageModule),
+    ...canActivate(redirectUnauthorizedToLogin)
   },
-  { path: 'feed', loadChildren: './feed/feed.module#FeedPageModule' },
-  { path: 'tracker', loadChildren: './tracker/tracker.module#TrackerPageModule' },
-  { path: 'uploader', loadChildren: './uploader/uploader.module#UploaderPageModule' },
-  { path: 'log-modal', loadChildren: './log-modal/log-modal.module#LogModalPageModule' },
 ];
 
 @NgModule({

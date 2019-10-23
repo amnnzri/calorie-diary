@@ -4,9 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 
 import { IonicModule } from '@ionic/angular';
-
 import { UploaderPage } from './uploader.page';
-import { IonicStorageModule } from '@ionic/storage';
+
 
 const routes: Routes = [
   {
@@ -20,8 +19,7 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild([{ path: '', component: UploaderPage}]),
-    IonicStorageModule.forRoot()
+    RouterModule.forChild([{ path: '', component: UploaderPage}])
   ],
   declarations: [UploaderPage]
 })

@@ -1,26 +1,58 @@
-import { HomePage } from './home.page';
+import {NgModule} from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import {NgModule} from '@angular/core'
+import { HomePage } from './home.page';
 
 const routes: Routes = [
-    {
-        path : '',
-        component: HomePage,
-        children : [
-            { path: 'feed', loadChildren: '../feed/feed.module#FeedPageModule' },
-            { path: 'tracker', loadChildren: '../tracker/tracker.module#TrackerPageModule' },
-            { path: 'uploader', loadChildren: '../uploader/uploader.module#UploaderPageModule'},
-           
-            
-            ]
-    }
-
-
-
+  {
+    path : 'home',
+    component: HomePage,
+    children : [
+      {
+        path: 'feed',
+        children: [
+          {
+            path: '',
+            loadChildren: () =>
+              import('../feed/feed.module').then(m => m.FeedPageModule)
+          }
+        ]
+      },
+      {
+        path: 'tracker',
+        children: [
+          {
+            path: '',
+            loadChildren: () =>
+              import('../tracker/tracker.module').then(m => m.TrackerPageModule)
+          }
+        ]
+      },
+      {
+        path: 'uploader',
+        children: [
+          {
+            path: '',
+            loadChildren: () =>
+              import('../uploader/uploader.module').then(m => m.UploaderPageModule)
+          }
+        ]
+      },
+      {
+        path: '',
+        redirectTo: '/home/feed',
+        pathMatch: 'full'
+      }
+    ]
+  },
+  {
+    path: '',
+    redirectTo: '/home/feed',
+    pathMatch: 'full'
+  }
 ];
 
 @NgModule({
     imports: [RouterModule.forChild(routes)],
     exports: [RouterModule]
 })
-export class HomeRoutingModule { }
+export class HomeRoutingModule {}

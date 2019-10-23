@@ -1,42 +1,43 @@
 <ion-header>
   <ion-toolbar>
- 
+    <ion-title>
+      Food Track
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-    <ion-list>
-        <ion-item-sliding *ngFor="let log of getLogs()">
-            <ion-item>
-                <ion-label>{{log.name}}</ion-label>
-                <ion-label color='medium'>x{{log.quantity}}</ion-label>
-                <ion-label color='medium'>{{log.calories}} cal</ion-label>
-            </ion-item>
-            <ion-item-options side="end">
-              <ion-item-option (click)="editLog(log)">Edit</ion-item-option>
-              <ion-item-option color="danger" (click)="deleteLog(log)">Delete</ion-item-option>
-            </ion-item-options>
-          </ion-item-sliding>
-      </ion-list>
+  <ion-list>
+    <ion-item-sliding *ngFor="let track of foodTrackArr">
+      <ion-item>
+          <ion-label>{{track.name}}</ion-label>
+          <ion-label color='medium'>x{{track.quantity}}</ion-label>
+          <ion-label color='medium'>{{track.calories}} cal</ion-label>
+      </ion-item>
+      <ion-item-options side="end">
+        <ion-item-option (click)="editTrack(track)">Edit</ion-item-option>
+        <ion-item-option color="danger" (click)="deleteTrack(track)">Delete</ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
 
-      <ion-title>
-        My Day: {{currentDate | date}}
-      </ion-title>
-    
-    <ion-card>
-      <ion-card-content>
-        <h1>Day's Total: {{ this.total() }} calories</h1>
-      </ion-card-content>
-    </ion-card>
+  <ion-card>
+    <ion-card-content>
+      <h2>My Day: {{currentDate | date}}</h2>
+    </ion-card-content>
+  </ion-card>
 
-    
-    <ion-card>
-      <ion-card-content>
-        <h1>Remaining in Day: {{ this.getRemaining() }} calories</h1>
-      </ion-card-content>
-    </ion-card>
-    
+  <ion-card>
+    <ion-card-content>
+      <h1>Day's Total: {{ dateTotalCalories() }} calories</h1>
+    </ion-card-content>
+  </ion-card>
 
+  <ion-card *ngIf="userNeededCalories > 0">
+    <ion-card-content>
+      <h1>Remaining in Day: {{ userNeededCalories - dateTotalCalories() }} calories</h1>
+    </ion-card-content>
+  </ion-card>
 </ion-content>
 
 <ion-row>
@@ -45,7 +46,7 @@
 </ion-row>
 
 <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="logFood()">
-      <ion-icon name="add"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+  <ion-fab-button (click)="addFoodTrack()">
+    <ion-icon name="add"></ion-icon>
+  </ion-fab-button>
+</ion-fab>
