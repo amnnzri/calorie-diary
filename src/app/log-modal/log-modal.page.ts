@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController, AlertController } from '@ionic/angular';
-import { Storage } from '@ionic/storage';
+import { ProfileService } from '../services/profile.service';
+import { UserMenu } from '../models/user';
+import { Observable } from 'rxjs';
+import { first, filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-log-modal',
@@ -8,57 +11,62 @@ import { Storage } from '@ionic/storage';
   styleUrls: ['./log-modal.page.scss'],
 })
 export class LogModalPage implements OnInit {
+  sharedFoods: any[];
+  userFoods: any[];
+  quantity: number;
+  foodId: string;
 
-  foodslct: any;
-  foodslctSend: any;
-
-  foods: any = [];
-
-  toStr = JSON.stringify;
-
-  currentDate: Date;
-
-  foodQty;
-
-  constructor(public modalController: ModalController, private storage: Storage, public alertController: AlertController ) {
-
-    this.storage.get('foodsArr').then((val) => {
-      if (val != "[]"){
-       this.foods = JSON.parse(val)
-      }
-      else{
-       this.storage.set('foodsArr', JSON.stringify(this.foods));
-      }
-    });
-    
-   }
+  constructor(
+    private modalController: ModalController,
+    private alertController: AlertController,
+    private profileService: ProfileService
+  ) {}
 
   ngOnInit() {
+    this.profileService.getUserMenu().subscribe(arr => {
+      this.userFoods = arr;
+    });
+    this.profileService.getSharedMenu().subscribe(arr => {
+      this.sharedFoods = arr;
+    });
   }
 
   dismiss(){
     this.modalController.dismiss();
   }
 
-  async save(){
-    if (this.foodQty != undefined && this.foodslct != undefined){
-      this.foodslctSend = JSON.parse(this.foodslct);
-      this.foodslctSend.quantity = this.foodQty;
-      this.foodslctSend.calories = +this.foodslctSend.calories * +this.foodQty;
-      this.foodslctSend.date = this.currentDate;
-      this.modalController.dismiss(this.foodslctSend);
-    }
-    else{
+  async save() {
+    const food = this.findFoodMenu(this.foodId);
+    const isValid = food && this.quantity > 0;
+    if (isValid) {
+      this.modalController.dismiss({
+        foodId: food.id,
+        name: food.name,
+        calories: food.calories,
+        quantity: this.quantity
+      });
+    } else {
       const alert = await this.alertController.create({
         header: 'Please fill in all the inputs',
         buttons: [
           {
-              text: 'OK'
+            text: 'OK'
           }
-      ]
+        ]
       });
       await alert.present();
     }
-    
+  }
+
+  findFoodMenu(id: string) {
+    const sf = this.sharedFoods.filter(menu => menu.id == id);
+    const uf = this.userFoods.filter(menu => menu.id == id);
+    if (sf.length > 0) {
+      return sf[0];
+    } else if (uf.length > 0) {
+      return uf[0];
+    } else {
+      return null;
+    }
   }
 }

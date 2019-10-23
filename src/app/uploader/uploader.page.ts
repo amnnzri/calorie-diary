@@ -1,26 +1,28 @@
 import { Component, OnInit } from '@angular/core';
-import { Storage } from '@ionic/storage';
-import { NavController, AlertController } from '@ionic/angular';
+import { AlertController } from '@ionic/angular';
+import { ProfileService } from 'src/app/services/profile.service';
+import { CommonService } from 'src/app/services/common.service';
+import { UserMenu } from '../models/user';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-uploader',
   templateUrl: './uploader.page.html',
   styleUrls: ['./uploader.page.scss'],
 })
-export class UploaderPage  {
-  foods: any = [];
+export class UploaderPage implements OnInit {
+  sharedFoods: Observable<UserMenu[]>;
+  userFoods: Observable<UserMenu[]>;
 
-  constructor(public navCtrl: NavController, public alertController: AlertController, private storage: Storage){
-   
-   this.storage.get('foodsArr').then((val) => {
-     if (val != "[]"){
-      this.foods = JSON.parse(val)
-     }
-     else{
-      this.storage.set('foodsArr', JSON.stringify(this.foods));
-     }
-   });
-   
+  constructor(
+    private alertController: AlertController,
+    private profileService: ProfileService,
+    private commonService: CommonService
+  ) {}
+
+  ngOnInit() {
+    this.userFoods = this.profileService.getUserMenu();
+    this.sharedFoods = this.profileService.getSharedMenu();
   }
 
   async editFood(food) {
@@ -30,39 +32,38 @@ export class UploaderPage  {
         {
           name: 'name',
           type: 'text',
+          placeholder: 'Example : Pizza Slice',
           value: food.name
         },
         {
           name: 'calories',
-          type: 'text',
+          type: 'number',
+          placeholder: 'Example : 250',
           value: food.calories
         }
       ],
       buttons: [
         {
-            text: 'Cancel'
+          text: 'Cancel'
         },
         {
-            text: 'Save',
-            handler: data => {
-
-              if(data.name != "" && data.calories != ""){
-
-                let index = this.foods.indexOf(food);
-
-                if(index > -1){
-                  this.foods[index] = data;
-                  this.storage.set('foodsArr', JSON.stringify(this.foods));
-                }
-
-              }
-              else{
-                return false;
-              }
-
+          text: 'Save',
+          handler: data => {
+            if (data.name && data.calories > 0) {
+              let menu: UserMenu = {
+                name: data.name,
+                calories: data.calories
+              };
+              this.profileService.updateFoodMenu(food.id, menu).catch((error) => {
+                this.commonService.handleError(error);
+              });
             }
+            else{
+              return false;
+            }
+          }
         }
-    ]
+      ]
     });
 
     await alert.present();
@@ -79,53 +80,55 @@ export class UploaderPage  {
         },
         {
           name: 'calories',
-          type: 'text',
+          type: 'number',
           placeholder: 'Example : 250'
         }
       ],
       buttons: [
         {
-            text: 'Cancel'
+          text: 'Cancel'
         },
         {
-            text: 'Add',
-            handler: data => {
-                if(data.name != "" && data.calories != ""){
-
-                  if (this.foods == null){
-                    this.foods = [];
-                    this.foods.push({
-                      name: data.name,
-                      calories: data.calories
-                    })
-                  }
-                  else{
-                    this.foods.push(data);
-                  }
-                  this.storage.set('foodsArr', JSON.stringify(this.foods));
-
-                }
-                else{
-                  return false;
-                }
+          text: 'Add',
+          handler: data => {
+            if (data.name && data.calories > 0) {
+              let menu: UserMenu = {
+                name: data.name,
+                calories: data.calories
+              };
+              this.profileService.addFoodMenu(menu).catch((error) => {
+                this.commonService.handleError(error);
+              });
+            } else {
+              return false;
             }
+          }
         }
-    ]
+      ]
     });
 
     await alert.present();
   }
 
-  
-
-  deleteFood(food) {
-
-    let index = this.foods.indexOf(food);
-
-        if(index > -1){
-            this.foods.splice(index, 1);
-            this.storage.set('foodsArr', JSON.stringify(this.foods));
+  async deleteFood(food) {
+    const alert = await this.alertController.create({
+      header: 'Delete Food',
+      message: 'Are you sure to delete this food menu?',
+      buttons: [
+        {
+          text: 'Cancel'
+        },
+        {
+          text: 'Delete',
+          handler: () => {
+            this.profileService.deleteFoodMenu(food.id).catch((error) => {
+              this.commonService.handleError(error);
+            });
+          }
         }
+      ]
+    });
 
+    await alert.present();
   }
 }

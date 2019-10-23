@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 
 import { IonicModule } from '@ionic/angular';
-
 import { SignupPage } from './signup.page';
 import { AuthModule } from 'src/app/shared-modules/auth.module';
 

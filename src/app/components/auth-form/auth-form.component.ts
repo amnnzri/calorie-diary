@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { UserCredential } from 'src/app/models/user';
-import { LoadingController, AlertController } from '@ionic/angular';
+import { LoadingController } from '@ionic/angular';
 
 @Component({
   selector: 'app-auth-form',
@@ -11,14 +11,14 @@ import { LoadingController, AlertController } from '@ionic/angular';
 export class AuthFormComponent implements OnInit {
   public loading: HTMLIonLoadingElement;
   public authForm: FormGroup;
+
   @Input() actionButtonText: string;
   @Input() isPasswordResetPage = false;
   @Output() formSubmitted = new EventEmitter<any>();
 
   constructor(
     private formBuilder: FormBuilder,
-    private loadingCtrl: LoadingController,
-    private alertCtrl: AlertController
+    private loadingCtrl: LoadingController
   ) {
     this.authForm = this.formBuilder.group({
       email: ['', Validators.compose([Validators.required, Validators.email])],
@@ -41,20 +41,12 @@ export class AuthFormComponent implements OnInit {
     }
   }
 
-  async showLoading(): Promise<void> {
+  async showLoading() {
     this.loading = await this.loadingCtrl.create();
     await this.loading.present();
   }
 
-  hideLoading(): Promise<boolean> {
-    return this.loading.dismiss();
-  }
-
-  async handleError(error): Promise<void> {
-    const alert = await this.alertCtrl.create({
-      message: error.message,
-      buttons: [{ text: 'Ok', role: 'cancel' }]
-    });
-    await alert.present();
+  async hideLoading() {
+    await this.loading.dismiss();
   }
 }

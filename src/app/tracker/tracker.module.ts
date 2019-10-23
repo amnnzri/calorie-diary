@@ -7,7 +7,6 @@ import { IonicModule } from '@ionic/angular';
 
 import { TrackerPage } from './tracker.page';
 import { LogModalPage } from '../log-modal/log-modal.page';
-import { IonicStorageModule } from '@ionic/storage';
 
 const routes: Routes = [
   {
@@ -21,8 +20,7 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     IonicModule,
-    RouterModule.forChild([{ path: '', component: TrackerPage  }]),
-    IonicStorageModule.forRoot()
+    RouterModule.forChild([{ path: '', component: TrackerPage  }])
   ],
   declarations: [TrackerPage,LogModalPage],
   entryComponents: [LogModalPage]

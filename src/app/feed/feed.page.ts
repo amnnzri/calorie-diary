@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Storage } from '@ionic/storage';
-import { NavController, AlertController } from '@ionic/angular';
+import { AlertController } from '@ionic/angular';
+import { UserFeed, UserCalculations } from '../models/user';
+import { CommonService } from '../services/common.service';
+import { ProfileService } from '../services/profile.service';
+import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-feed',
@@ -9,72 +12,108 @@ import { NavController, AlertController } from '@ionic/angular';
 })
 export class FeedPage implements OnInit {
 
-  public height: number;
-  public weight: number;
-  public bmiValue: number;
-  public bmiMessage: string;
-  public age: number;
-  public BMR: number;
-  public bmrMessage: string;
-  public gender: boolean;   // false is female,true for male
-  
+  private height: number;
+  private weight: number;
+  private age: number;
+  private gender: boolean;   // false is female,true for male
+  private activityLevel: number;
 
-  public actList = [
-    { strAct: 'sedentary', temp: 1.2 },
-    { strAct: 'lightly', temp: 1.375 },
-    { strAct: 'moderately', temp: 1.55 },
-    { strAct: 'very active', temp: 1.725 },
-    { strAct: 'extra active', temp: 1.9 }
+  private bmiValue: number;
+  private bmrValue: number;
+
+  private bmiMessage: string;
+  private dailyCalories: number;
+
+  readonly activityLevelList = [
+    { label: 'Sedentary (Little or No Exercise)', value: 1.2 },
+    { label: 'Lightly Active (Light Exercise/Sports 1-3 Days Per Week)', value: 1.375 },
+    { label: 'Moderateley Active (Moderate Exercise/Sports 3-5 Days Per Week)', value: 1.55 },
+    { label: 'Very Active (Hard Exercise/Sports 6-7 days Per Week)', value: 1.725 },
+    { label: 'Extra Active (Very Intense Exercise/Sports and Physical Job Daily)', value: 1.9 }
   ];
-  public genderList = [
-    { genLab: 'Male', genTemp: false },
-    { genLab: 'Female', genTemp: true }
+  readonly genderList = [
+    { label: 'Male', value: true },
+    { label: 'Female', value: false }
   ];
 
-  constructor(public navCtrl: NavController, private storage: Storage, public alertController: AlertController) {
+  constructor(
+    private commonService: CommonService,
+    private profileService: ProfileService,
+    private alertController: AlertController
+  ) {
+    this.height = 0;
+    this.weight = 0;
+    this.age = 0;
+    this.gender = true;
+    this.activityLevel = 0;
+
+    this.bmiValue = 0;
+    this.bmrValue = 0;
+    this.dailyCalories = 0;
+
+    this.bmiMessage = null;
   }
 
-  calculateBMI() {
-      if (this.weight > 0 && this.height > 0) {
-        let finalBmi = this.weight / (this.height / 100 * this.height / 100);
-        this.bmiValue = parseFloat(finalBmi.toFixed(2));
-        this.setBMIMessage();
-      }
-    }
-    
-    // setBMIMessage will set the text message based on the value of BMI
-    private setBMIMessage() {
-      if (this.bmiValue < 18.5) {
-        this.bmiMessage = "Underweight"
-      }
-    
-      if (this.bmiValue > 18.5 && this.bmiValue < 25) {
-        this.bmiMessage = "Normal"
-      }
-    
-      if (this.bmiValue > 25 && this.bmiValue < 30) {
-        this.bmiMessage = "Overweight"
-      }
-    
-      if (this.bmiValue > 30) {
-        this.bmiMessage = "Obese"
-      }
+  ngOnInit() {
+    this.loadFeed();
+  }
+
+  async loadFeed() {
+    const feed = await this.profileService.getUserFeed().pipe(first()).toPromise();
+    if (feed) {
+      this.height = (!!feed.height && feed.height > 0) ? feed.height : 0;
+      this.weight = (!!feed.weight && feed.weight > 0) ? feed.weight : 0;
+      this.age = (!!feed.age && feed.age > 0) ? feed.age : 0;
+      this.gender = feed.gender == null ? true: feed.gender;
+      this.activityLevel = (!!feed.activityLevel && feed.activityLevel > 0) ? feed.activityLevel : 0;
     }
 
-    getBMR() {
-    
-      let temp = String(this.gender);
-      if (temp == 'false') {
-        console.log('male');
-        this.BMR = 66 + (6.3 * this.weight) + (12.9 * this.height) - (6.8 * this.age);
-        this.BMR = parseFloat(this.BMR.toFixed(2));
-      } else {
-        console.log('Female');
-        this.BMR = 665 + (4.35 * this.weight) + (4.7 * this.height) - (4.7 * this.age);
-        this.BMR = parseFloat(this.BMR.toFixed(2));
-      }
-    }
-    ngOnInit() {
-    }
-  
+    this.calculate();
   }
+
+  saveAndCalculate() {
+    let feed: UserFeed = {
+      height: this.height,
+      weight: this.weight,
+      age: this.age,
+      gender: this.gender,
+      activityLevel: this.activityLevel
+    };
+    this.profileService.updateUserFeed(feed).then(() => {
+      this.calculate();
+    }).catch(error => {
+      this.commonService.handleError(error);
+      console.log('ERROR: ' + error.message);
+    });
+  }
+
+  calculate() {
+    let feed: UserFeed = {
+      height: this.height,
+      weight: this.weight,
+      age: this.age,
+      gender: this.gender,
+      activityLevel: this.activityLevel
+    };
+    let calc = this.commonService.calculateCalories(feed);
+    this.bmiValue = calc.bmiValue;
+    this.bmrValue = calc.bmrValue;
+    this.dailyCalories = calc.dailyCalories;
+    this.setBMIMessage();
+  }
+
+  // setBMIMessage will set the text message based on the value of BMI
+  private setBMIMessage() {
+    if (this.bmiValue <= 0) {
+      this.bmiMessage = '';
+    } else if (this.bmiValue < 18.5) {
+      this.bmiMessage = 'Underweight';
+    } else if (this.bmiValue < 25) {
+      this.bmiMessage = 'Normal';
+    } else if (this.bmiValue < 30) {
+      this.bmiMessage = 'Overweight';
+    } else {
+      this.bmiMessage = 'Obese';
+    }
+  }
+}

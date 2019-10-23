@@ -16,48 +16,50 @@
   <ion-list>
     <ion-list-header> Personal Information </ion-list-header>
   </ion-list>
-  <ion-item (click)="updateName()">
-    <ion-label>
-      <ion-grid>
-        <ion-row>
-          <ion-col class="text-left" size="5"> Name </ion-col>
-          <ion-col class="text-center" size="7" *ngIf="userProfile?.fullName">
-            {{userProfile?.fullName}}
-          </ion-col>
-          <ion-col size="7" class="placeholder-profile text-center" *ngIf="!userProfile?.fullName">
-            <span> Tap here to edit. </span>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-label>
-  </ion-item>
+  <ion-list *ngIf="userProfile | async as profile">
+    <ion-item (click)="updateName()">
+      <ion-label>
+        <ion-grid>
+          <ion-row>
+            <ion-col class="text-left" size="5"> Name </ion-col>
+            <ion-col class="text-center" size="7" *ngIf="profile.fullName">
+              {{profile.fullName}}
+            </ion-col>
+            <ion-col size="7" class="placeholder-profile text-center" *ngIf="!profile.fullName">
+              <span> Tap here to edit. </span>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-label>
+    </ion-item>
 
-  <ion-item (click)="updateEmail()">
-    <ion-label>
-      <ion-grid>
-        <ion-row>
-          <ion-col class="text-left" size="5"> Email </ion-col>
-          <ion-col class="text-center" size="7" *ngIf="userProfile?.email">
-            {{userProfile?.email}}
-          </ion-col>
-          <ion-col size="7" class="placeholder-profile text-center" *ngIf="!userProfile?.email">
-            <span> Tap here to edit. </span>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-label>
-  </ion-item>
+    <ion-item (click)="updateEmail()">
+      <ion-label>
+        <ion-grid>
+          <ion-row>
+            <ion-col class="text-left" size="5"> Email </ion-col>
+            <ion-col class="text-center" size="7" *ngIf="profile.email">
+              {{profile.email}}
+            </ion-col>
+            <ion-col size="7" class="placeholder-profile text-center" *ngIf="!profile.email">
+              <span> Tap here to edit. </span>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-label>
+    </ion-item>
 
-  <ion-item (click)="updatePassword()">
-    <ion-label>
-      <ion-grid>
-        <ion-row>
-          <ion-col class="text-left" size="5"> Password </ion-col>
-          <ion-col class="text-center" size="7" class="placeholder-profile">
-            <span> Tap here to edit. </span>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-    </ion-label>
-  </ion-item>
+    <ion-item (click)="updatePassword()">
+      <ion-label>
+        <ion-grid>
+          <ion-row>
+            <ion-col class="text-left" size="5"> Password </ion-col>
+            <ion-col class="text-center" size="7" class="placeholder-profile">
+              <span> Tap here to edit. </span>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-label>
+    </ion-item>
+  </ion-list>
 </ion-content>

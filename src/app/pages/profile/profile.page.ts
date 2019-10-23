@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/auth.service';
-import { Router } from '@angular/router';
 import { ProfileService } from 'src/app/services/profile.service';
-import { AlertController } from '@ionic/angular';
+import { CommonService } from 'src/app/services/common.service';
+import { AlertController, NavController } from '@ionic/angular';
 import { UserProfile } from 'src/app/models/user';
+import { Observable } from 'rxjs';
+import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profile',
@@ -11,52 +13,53 @@ import { UserProfile } from 'src/app/models/user';
   styleUrls: ['./profile.page.scss']
 })
 export class ProfilePage implements OnInit {
-  public userProfile: UserProfile;
+  userProfile: Observable<UserProfile>;
+
   constructor(
     private authService: AuthService,
-    private router: Router,
     private profileService: ProfileService,
-    private alertCtrl: AlertController
+    private commonService: CommonService,
+    private alertCtrl: AlertController,
+    private navController: NavController
   ) {}
 
   ngOnInit() {
-    this.profileService.getUserProfile().then(profile$ => {
-      profile$.subscribe(userProfile => {
-        this.userProfile = userProfile;
-      });
-    });
+    this.userProfile = this.profileService.getUserProfile();
   }
 
-  async logOut(): Promise<void> {
+  async logOut() {
     await this.authService.logout();
-    this.router.navigateByUrl('login');
+    this.navController.navigateRoot('/');
   }
 
-  async updateName(): Promise<void> {
-    const alert = await this.alertCtrl.create({
-      subHeader: 'Your name',
-      inputs: [
-        {
-          type: 'text',
-          name: 'fullName',
-          placeholder: 'Your full name',
-          value: this.userProfile.fullName
-        }
-      ],
-      buttons: [
-        { text: 'Cancel' },
-        {
-          text: 'Save',
-          handler: data => {
-            this.profileService.updateName(data.fullName);
+  async updateName() {
+    const profile = await this.userProfile.pipe(first()).toPromise();
+    if (profile) {
+      const alert = await this.alertCtrl.create({
+        subHeader: 'Your name',
+        inputs: [
+          {
+            type: 'text',
+            name: 'fullName',
+            placeholder: 'Your full name',
+            value: profile.fullName
           }
-        }
-      ]
-    });
-    await alert.present();
+        ],
+        buttons: [
+          { text: 'Cancel' },
+          {
+            text: 'Save',
+            handler: data => {
+              this.profileService.updateName(data.fullName);
+            }
+          }
+        ]
+      });
+      await alert.present();
+    }
   }
 
-  async updateEmail(): Promise<void> {
+  async updateEmail() {
     const alert = await this.alertCtrl.create({
       inputs: [
         { type: 'text', name: 'newEmail', placeholder: 'Your new email' },
@@ -68,11 +71,8 @@ export class ProfilePage implements OnInit {
           text: 'Save',
           handler: data => {
             this.profileService
-              .updateEmail(data.newEmail, data.password)
-              .then(() => {
-                console.log('Email Changed Successfully');
-              })
-              .catch(error => {
+              .updateEmail(data.newEmail, data.password).catch(error => {
+                this.commonService.handleError(error);
                 console.log('ERROR: ' + error.message);
               });
           }
@@ -82,7 +82,7 @@ export class ProfilePage implements OnInit {
     await alert.present();
   }
 
-  async updatePassword(): Promise<void> {
+  async updatePassword() {
     const alert = await this.alertCtrl.create({
       inputs: [
         { name: 'newPassword', placeholder: 'New password', type: 'password' },
@@ -96,7 +96,10 @@ export class ProfilePage implements OnInit {
             this.profileService.updatePassword(
               data.newPassword,
               data.oldPassword
-            );
+            ).catch(error => {
+              this.commonService.handleError(error);
+              console.log('ERROR: ' + error.message);
+            });
           }
         }
       ]

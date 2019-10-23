@@ -1,9 +1,9 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { UserCredential } from 'src/app/models/user';
 import { AuthService } from 'src/app/services/auth.service';
+import { CommonService } from 'src/app/services/common.service';
 import { AuthFormComponent } from 'src/app/components/auth-form/auth-form.component';
-import { AlertController } from '@ionic/angular';
-import { Router } from '@angular/router';
+import { AlertController, NavController } from '@ionic/angular';
 
 @Component({
   selector: 'app-reset-password',
@@ -11,17 +11,18 @@ import { Router } from '@angular/router';
   styleUrls: ['./reset-password.page.scss']
 })
 export class ResetPasswordPage implements OnInit {
-  @ViewChild(AuthFormComponent, { static: false })
-  resetPasswordForm: AuthFormComponent;
+  @ViewChild(AuthFormComponent, { static: false }) resetPasswordForm: AuthFormComponent;
+
   constructor(
     private authService: AuthService,
+    private commonService: CommonService,
     private alertCtrl: AlertController,
-    private router: Router
+    private navController: NavController
   ) {}
 
   ngOnInit() {}
 
-  async resetPassword(credentials: UserCredential): Promise<void> {
+  async resetPassword(credentials: UserCredential) {
     try {
       await this.authService.resetPassword(credentials.email);
       await this.resetPasswordForm.hideLoading();
@@ -32,7 +33,7 @@ export class ResetPasswordPage implements OnInit {
             text: 'Ok',
             role: 'cancel',
             handler: () => {
-              this.router.navigateByUrl('login');
+              this.navController.navigateBack('/');
             }
           }
         ]
@@ -40,7 +41,7 @@ export class ResetPasswordPage implements OnInit {
       await alert.present();
     } catch (error) {
       await this.resetPasswordForm.hideLoading();
-      this.resetPasswordForm.handleError(error);
+      this.commonService.handleError(error);
     }
   }
 }
