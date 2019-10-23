@@ -7,10 +7,19 @@
 <ion-content padding>
   <ion-item>
     <ion-label>Food</ion-label>
-    <ion-select [(ngModel)]="foodId" placeholder="List from database" >
-      <ion-select-option  *ngFor="let f of userFoods" [value]="f.id">{{f.name}}: {{f.calories}} cal</ion-select-option>
-      <ion-select-option  *ngFor="let f of sharedFoods" [value]="f.id">{{f.name}}: {{f.calories}} cal</ion-select-option>
-    </ion-select>
+    <ionic-selectable
+      [(ngModel)]="food"
+      [items]="allFoods"
+      itemValueField="id"
+      itemTextField="name"
+      [canSearch]="true">
+      <ng-template ionicSelectableItemTemplate let-food="item">
+        {{food.name}}: {{food.calories}} cal
+      </ng-template>
+    </ionic-selectable>
+    <!-- <ion-select [(ngModel)]="foodId" placeholder="List from database" >
+      <ion-select-option  *ngFor="let f of allFoods" [value]="f.id">{{f.name}}: {{f.calories}} cal</ion-select-option>
+    </ion-select> -->
   </ion-item>
 
   <ion-item>

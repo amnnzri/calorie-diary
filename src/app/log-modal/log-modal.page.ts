@@ -13,6 +13,8 @@ import { first, filter } from 'rxjs/operators';
 export class LogModalPage implements OnInit {
   sharedFoods: any[];
   userFoods: any[];
+  allFoods: any[];
+  food: any;
   quantity: number;
   foodId: string;
 
@@ -25,9 +27,13 @@ export class LogModalPage implements OnInit {
   ngOnInit() {
     this.profileService.getUserMenu().subscribe(arr => {
       this.userFoods = arr;
+      this.allFoods = arr.concat(this.sharedFoods ? this.sharedFoods : []);
+      this.setDefaultFood();
     });
     this.profileService.getSharedMenu().subscribe(arr => {
       this.sharedFoods = arr;
+      this.allFoods = arr.concat(this.userFoods ? this.userFoods : []);
+      this.setDefaultFood();
     });
   }
 
@@ -36,13 +42,12 @@ export class LogModalPage implements OnInit {
   }
 
   async save() {
-    const food = this.findFoodMenu(this.foodId);
-    const isValid = food && this.quantity > 0;
+    const isValid = this.food && this.quantity > 0;
     if (isValid) {
       this.modalController.dismiss({
-        foodId: food.id,
-        name: food.name,
-        calories: food.calories,
+        foodId: this.food.id,
+        name: this.food.name,
+        calories: this.food.calories,
         quantity: this.quantity
       });
     } else {
@@ -58,15 +63,14 @@ export class LogModalPage implements OnInit {
     }
   }
 
-  findFoodMenu(id: string) {
-    const sf = this.sharedFoods.filter(menu => menu.id == id);
-    const uf = this.userFoods.filter(menu => menu.id == id);
-    if (sf.length > 0) {
-      return sf[0];
-    } else if (uf.length > 0) {
-      return uf[0];
-    } else {
-      return null;
+  setDefaultFood() {
+    if (this.allFoods && this.foodId) {
+      const foods = this.allFoods.filter(menu => menu.id == this.foodId);
+      if (foods.length > 0) {
+        this.food = foods[0];
+        return;
+      }
     }
+    this.food = null;
   }
 }

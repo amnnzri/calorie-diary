@@ -148,6 +148,10 @@ export class TrackerPage implements OnInit {
   }
 
   dateRemainingCalories() {
-
+    if (this.userNeededCalories > 0) {
+      return parseFloat((this.userNeededCalories-this.dateTotalCalories()).toFixed(2));
+    } else {
+      return 0;
+    }
   }
 }
